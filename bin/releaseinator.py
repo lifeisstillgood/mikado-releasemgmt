@@ -7,8 +7,6 @@ and somehow 'validate and clean up' packages to meet best practise, and
 will need to use twine to push code up to pypi and push changes to git.
 
 
-
-
 Validation checks
 -----------------
 
@@ -64,15 +62,21 @@ def bump_version(repopath):
         return
     
     user_message("Current version is {} - hit Y to bump it to {}".format(ver, nextver))
-    yn = input("Y/N")
+    yn = input("Y/N: ")
     if yn == "Y":
         with open(versionpath, "w") as fo:
             fo.write(nextver)
     else:
         user_message("No action taken")
 
-
-def push_to_pypi(repopath):
+        
+def get_latest_wheelname(repopath):
+    """ """
+    files = os.listdir(repopath+"/dist")
+    latest = sorted(files)[-1:][0]
+    return latest
+    
+def upload_to_pypi(repopath):
     """
 * sudo pip install twine
  Install to test location
@@ -90,13 +94,16 @@ real repositry is upload.pypi.org
     # rm-rf build/ dist/
     # python setup.py bdist_wheel
     # python -m twine upload --repository-url=https://upload.pypi.org/legacy/ dist/<nameofwheel>
-    pass
-
-
+    template = 'python -m twine upload --repository-url=https://upload.pypi.org/legacy/ dist/{latestwheelname}'
+    latestwheelname = get_latest_wheelname(repopath)    
+    cmd = template.format(latestwheelname=latestwheelname)
+    #subprocess.run(cmd)
+    print(cmd)
+    
 docopt_msg = """
 Usage:
     releaseinator.py bump <packagepathroot> 
-    releaseinator.py pushToPyPi <packagepathroot>
+    releaseinator.py upload2pypi <packagepathroot>
 
     releaseinator.py (-h | --help )
 
@@ -108,5 +115,9 @@ Options:
 
 if __name__ == "__main__":
     args = docopt.docopt(docopt_msg)
+    abspath = os.path.abspath(args["<packagepathroot>"])
+    print(args["<packagepathroot>"], abspath)
     if args["bump"]:
-        bump_version(args["<packagepathroot>"])
+        bump_version(abspath)
+    if args["upload2pypi"]:
+        upload_to_pypi(abspath)
