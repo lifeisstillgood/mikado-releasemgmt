@@ -1,10 +1,12 @@
 #! -*- coding: utf-8 -*-
 
 """
-releaseinator is a quick but hopefully useful script to 
-help pushout and release python packages. It needs to work with mkrepo
-and somehow 'validate and clean up' packages to meet best practise, and
-will need to use twine to push code up to pypi and push changes to git.
+
+releaseinator is a quick but hopefully useful script to help
+pushout and release python packages. It needs to work with mkrepo and
+somehow 'validate and clean up' packages to meet best practise, and
+will need to use twine to push code up to pypi and push changes to
+git.
 
 
 Validation checks
@@ -26,7 +28,6 @@ How to release a pacakge (ie todoinator)
 * have git repo clean 
 * bump version
 * push to pypi
-
 
 """
 
@@ -52,7 +53,7 @@ def bump_version(repopath):
     except:
         user_message("Unable to find / open VERSION file {}".format(versionpath))
         return
-    
+
     try:
         nextver = semver.bump_patch(ver)
     except ValueError:
@@ -60,7 +61,7 @@ def bump_version(repopath):
             "The version in {} {} is not valid semver".format(versionpath, ver)
         )
         return
-    
+
     user_message("Current version is {} - hit Y to bump it to {}".format(ver, nextver))
     yn = input("Y/N: ")
     if yn == "Y":
@@ -69,13 +70,14 @@ def bump_version(repopath):
     else:
         user_message("No action taken")
 
-        
+
 def get_latest_wheelname(repopath):
     """ """
-    files = os.listdir(repopath+"/dist")
+    files = os.listdir(repopath + "/dist")
     latest = sorted(files)[-1:][0]
     return latest
-    
+
+
 def upload_to_pypi(repopath):
     """
 * sudo pip install twine
@@ -94,12 +96,14 @@ real repositry is upload.pypi.org
     # rm-rf build/ dist/
     # python setup.py bdist_wheel
     # python -m twine upload --repository-url=https://upload.pypi.org/legacy/ dist/<nameofwheel>
-    template = 'python -m twine upload --repository-url=https://upload.pypi.org/legacy/ dist/{latestwheelname}'
-    latestwheelname = get_latest_wheelname(repopath)    
-    cmd = template.format(latestwheelname=latestwheelname)
-    #subprocess.run(cmd)
+    template = "python -m twine upload --repository-url=https://upload.pypi.org/legacy/ {repopath}/dist/{latestwheelname}"
+    latestwheelname = get_latest_wheelname(repopath)
+    cmd = template.format(latestwheelname=latestwheelname, repopath=repopath)
+    # subprocess.run(cmd)
     print(cmd)
-    
+    subprocess.run(cmd, shell=True)
+
+
 docopt_msg = """
 Usage:
     releaseinator.py bump <packagepathroot> 

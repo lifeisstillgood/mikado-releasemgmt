@@ -7,7 +7,7 @@ PYTHON=python
 help : Makefile
 	@sed -n 's/^##//p' $<
 
-##clean: clean setup build stuff
+##clear: clean setup build stuff
 clear :
 	rm -rf *.egg-info/
 	rm -rf dist/ build/ 
